@@ -34,21 +34,33 @@ const {
   <body class="bg-midnight text-warm-white font-body min-h-screen overflow-x-hidden">
     <slot />
 
-    <!-- Intersection Observer for reveal animations -->
+    <!-- Intersection Observer for all reveal animations -->
     <script>
-      const observer = new IntersectionObserver(
+      const revealObserver = new IntersectionObserver(
         (entries) => {
           entries.forEach((entry) => {
             if (entry.isIntersecting) {
               entry.target.classList.add('visible');
-              observer.unobserve(entry.target);
+
+              // Add stagger delay to children if parent is reveal-stagger
+              if (entry.target.classList.contains('reveal-stagger')) {
+                const children = entry.target.children;
+                for (let i = 0; i < children.length; i++) {
+                  (children[i] as HTMLElement).style.transitionDelay = `${i * 0.08}s`;
+                }
+              }
+
+              revealObserver.unobserve(entry.target);
             }
           });
         },
-        { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
+        { threshold: 0.08, rootMargin: '0px 0px -60px 0px' }
       );
 
-      document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+      // Observe all reveal variants
+      document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-stagger').forEach(
+        (el) => revealObserver.observe(el)
+      );
     </script>
   </body>
 </html>

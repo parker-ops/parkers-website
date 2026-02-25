@@ -2,18 +2,22 @@
 ---
 
 <section class="relative min-h-screen flex items-center justify-center px-6 pt-20 pb-16 overflow-hidden">
-  <!-- Subtle background accent -->
-  <div class="absolute top-1/4 -right-32 w-96 h-96 bg-amber/5 rounded-full blur-3xl pointer-events-none"></div>
-  <div class="absolute bottom-1/4 -left-32 w-72 h-72 bg-amber/3 rounded-full blur-3xl pointer-events-none"></div>
+  <!-- Animated background orbs -->
+  <div class="hero-bg-orb absolute top-1/4 -right-32 w-96 h-96 bg-amber/5 rounded-full blur-3xl pointer-events-none" id="orb1"></div>
+  <div class="hero-bg-orb absolute bottom-1/4 -left-32 w-72 h-72 bg-amber/3 rounded-full blur-3xl pointer-events-none" id="orb2"></div>
+  <div class="hero-bg-orb absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber/[0.02] rounded-full blur-3xl pointer-events-none"></div>
 
-  <div class="max-w-4xl mx-auto text-center">
+  <!-- Floating particles container -->
+  <div id="hero-particles" class="absolute inset-0 pointer-events-none overflow-hidden"></div>
+
+  <div class="max-w-4xl mx-auto text-center relative z-10">
     <!-- Headshot -->
     <div class="animate-fade-up mb-8">
-      <div class="relative inline-block">
+      <div class="relative inline-block animate-pulse-glow rounded-full">
         <img
           src="/assets/parker-headshot.jpg"
           alt="Parker Newell"
-          class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover object-top border-3 border-amber/40 shadow-[0_0_40px_rgba(200,160,74,0.15)]"
+          class="w-32 h-32 sm:w-40 sm:h-40 rounded-full object-cover object-top border-3 border-amber/40"
         />
         <div class="absolute inset-0 rounded-full ring-1 ring-amber/20 ring-offset-2 ring-offset-midnight"></div>
       </div>
@@ -36,18 +40,18 @@
       harness the power of artificial intelligence to grow smarter, move faster, and cut the headaches.
     </p>
 
-    <!-- Stats row -->
+    <!-- Stats row with count-up -->
     <div class="animate-fade-up delay-500 mt-12 flex flex-wrap justify-center gap-8 sm:gap-12">
       <div class="text-center">
-        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber">$3.2M+</span>
+        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber" data-count="3.2" data-prefix="$" data-suffix="M+">$0</span>
         <span class="text-xs text-warm-gray uppercase tracking-wider mt-1">Revenue Closed</span>
       </div>
       <div class="text-center">
-        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber">7+</span>
+        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber" data-count="7" data-suffix="+">0</span>
         <span class="text-xs text-warm-gray uppercase tracking-wider mt-1">Years in Sales</span>
       </div>
       <div class="text-center">
-        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber">40%</span>
+        <span class="block text-3xl sm:text-4xl font-heading font-bold text-amber" data-count="40" data-suffix="%">0</span>
         <span class="text-xs text-warm-gray uppercase tracking-wider mt-1">YoY Growth Driven</span>
       </div>
     </div>
@@ -62,4 +66,56 @@
       </a>
     </div>
   </div>
+
+  <!-- Hero scripts -->
+  <script>
+    // Floating particles
+    function createParticles() {
+      const container = document.getElementById('hero-particles');
+      if (!container) return;
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.bottom = '-10px';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = (Math.random() * 10) + 's';
+        p.style.width = (1 + Math.random() * 2) + 'px';
+        p.style.height = p.style.width;
+        container.appendChild(p);
+      }
+    }
+    createParticles();
+
+    // Parallax orbs on mouse move
+    document.addEventListener('mousemove', (e) => {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      const orb1 = document.getElementById('orb1');
+      const orb2 = document.getElementById('orb2');
+      if (orb1) orb1.style.transform = `translate(${x}px, ${y}px)`;
+      if (orb2) orb2.style.transform = `translate(${-x}px, ${-y}px)`;
+    });
+
+    // Count-up animation for stats
+    function animateCountUp() {
+      document.querySelectorAll('[data-count]').forEach(el => {
+        const target = parseFloat(el.getAttribute('data-count') || '0');
+        const prefix = el.getAttribute('data-prefix') || '';
+        const suffix = el.getAttribute('data-suffix') || '';
+        const isDecimal = target % 1 !== 0;
+        let current = 0;
+        const increment = target / 40;
+        const timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = prefix + (isDecimal ? current.toFixed(1) : Math.floor(current)) + suffix;
+        }, 30);
+      });
+    }
+    setTimeout(animateCountUp, 800);
+  </script>
 </section>

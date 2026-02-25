@@ -5,6 +5,7 @@ import Hero from '../components/Hero.astro';
 import About from '../components/About.astro';
 import Experience from '../components/Experience.astro';
 import Gallery from '../components/Gallery.astro';
+import Game from '../components/Game.astro';
 import Footer from '../components/Footer.astro';
 ---
 
@@ -12,9 +13,14 @@ import Footer from '../components/Footer.astro';
   <Nav />
   <main>
     <Hero />
+    <div class="section-divider max-w-4xl mx-auto"></div>
     <About />
+    <div class="section-divider max-w-4xl mx-auto"></div>
     <Experience />
+    <div class="section-divider max-w-4xl mx-auto"></div>
     <Gallery />
+    <div class="section-divider max-w-4xl mx-auto"></div>
+    <Game />
   </main>
   <Footer />
 </Layout>

@@ -18,7 +18,13 @@
       "Bash(/usr/bin/grep:*)",
       "Bash(git --version:*)",
       "Bash(gh --version:*)",
-      "Bash(gh auth:*)"
+      "Bash(gh auth:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nInitial commit: Parker Newell portfolio site\n\nAstro + Tailwind CSS personal portfolio with Hero, About, Experience\ntimeline, Social Proof gallery, and Contact sections. \"Warm Midnight\"\ndesign theme with Playfair Display / Inter typography and scroll\nanimations.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(gh repo create:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push)",
+      "Bash(gh run list:*)"
     ]
   }
 }

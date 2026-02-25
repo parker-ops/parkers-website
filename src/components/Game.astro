@@ -1,0 +1,299 @@
+---
+---
+
+<section id="game" class="py-24 sm:py-32 px-6">
+  <div class="max-w-4xl mx-auto">
+    <!-- Section header -->
+    <div class="reveal mb-12 text-center">
+      <p class="text-amber text-sm font-medium tracking-[0.25em] uppercase mb-3">Take a Break</p>
+      <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold">
+        Close the <span class="italic text-amber">Deal</span>.
+      </h2>
+      <p class="text-warm-gray mt-4 max-w-xl mx-auto text-lg">
+        Tap the deals before they disappear. How many can you close in 15 seconds?
+      </p>
+    </div>
+
+    <!-- Game container -->
+    <div class="reveal-scale" id="game-wrapper">
+      <div class="bg-midnight-light border border-midnight-lighter rounded-2xl overflow-hidden">
+
+        <!-- Game HUD -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-midnight-lighter">
+          <div class="flex items-center gap-4">
+            <div>
+              <span class="text-xs text-warm-gray uppercase tracking-wider">Deals Closed</span>
+              <p class="text-2xl font-heading font-bold text-amber" id="game-score">0</p>
+            </div>
+            <div class="w-px h-10 bg-midnight-lighter"></div>
+            <div>
+              <span class="text-xs text-warm-gray uppercase tracking-wider">Revenue</span>
+              <p class="text-2xl font-heading font-bold text-warm-white" id="game-revenue">$0</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-warm-gray uppercase tracking-wider">Time Left</span>
+            <p class="text-2xl font-heading font-bold tabular-nums" id="game-timer">
+              <span class="text-warm-white">15</span><span class="text-warm-gray text-lg">s</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Timer bar -->
+        <div class="h-1 bg-midnight-lighter">
+          <div class="h-full bg-amber transition-all duration-100 ease-linear" id="timer-bar" style="width: 100%"></div>
+        </div>
+
+        <!-- Game field -->
+        <div class="relative h-[340px] sm:h-[400px] overflow-hidden" id="game-field">
+          <!-- Start screen -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-6 z-10" id="start-screen">
+            <div class="w-20 h-20 rounded-2xl bg-amber-muted flex items-center justify-center">
+              <svg class="w-10 h-10 text-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <p class="text-warm-gray text-center max-w-xs">Deals will pop up on screen. Tap them before they vanish!</p>
+            <button
+              id="start-btn"
+              class="px-8 py-3 bg-amber text-midnight font-semibold rounded-xl hover:bg-amber-light transition-colors text-sm uppercase tracking-wider"
+            >
+              Start Closing
+            </button>
+          </div>
+
+          <!-- End screen (hidden initially) -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center gap-5 z-10 hidden" id="end-screen">
+            <div id="end-emoji" class="text-5xl mb-2"></div>
+            <h3 class="font-heading text-2xl sm:text-3xl font-bold text-warm-white" id="end-title"></h3>
+            <p class="text-warm-gray text-center max-w-xs" id="end-message"></p>
+            <div class="flex items-center gap-6 my-2">
+              <div class="text-center">
+                <span class="block text-3xl font-heading font-bold text-amber" id="end-deals">0</span>
+                <span class="text-xs text-warm-gray uppercase">Deals</span>
+              </div>
+              <div class="w-px h-10 bg-midnight-lighter"></div>
+              <div class="text-center">
+                <span class="block text-3xl font-heading font-bold text-warm-white" id="end-revenue">$0</span>
+                <span class="text-xs text-warm-gray uppercase">Revenue</span>
+              </div>
+            </div>
+            <button
+              id="retry-btn"
+              class="px-8 py-3 bg-amber text-midnight font-semibold rounded-xl hover:bg-amber-light transition-colors text-sm uppercase tracking-wider"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const GAME_DURATION = 15;
+  const DEAL_VALUES = [5000, 10000, 15000, 25000, 50000, 75000, 100000];
+  const DEAL_LABELS = ['Starter', 'Growth', 'Pro', 'Scale', 'Enterprise', 'Mega', 'Whale'];
+
+  let score = 0;
+  let revenue = 0;
+  let timeLeft = GAME_DURATION;
+  let gameActive = false;
+  let gameTimer: ReturnType<typeof setInterval> | null = null;
+  let spawnTimer: ReturnType<typeof setInterval> | null = null;
+
+  const field = document.getElementById('game-field')!;
+  const scoreEl = document.getElementById('game-score')!;
+  const revenueEl = document.getElementById('game-revenue')!;
+  const timerEl = document.getElementById('game-timer')!;
+  const timerBar = document.getElementById('timer-bar')!;
+  const startScreen = document.getElementById('start-screen')!;
+  const endScreen = document.getElementById('end-screen')!;
+  const startBtn = document.getElementById('start-btn')!;
+  const retryBtn = document.getElementById('retry-btn')!;
+
+  function formatRevenue(val: number): string {
+    if (val >= 1000000) return '$' + (val / 1000000).toFixed(1) + 'M';
+    if (val >= 1000) return '$' + (val / 1000).toFixed(0) + 'K';
+    return '$' + val;
+  }
+
+  function spawnDeal() {
+    if (!gameActive) return;
+
+    const idx = Math.floor(Math.random() * DEAL_VALUES.length);
+    const value = DEAL_VALUES[idx];
+    const label = DEAL_LABELS[idx];
+    const lifespan = 1800 + Math.random() * 1200; // 1.8-3s
+
+    const deal = document.createElement('button');
+    deal.className = 'absolute flex flex-col items-center justify-center rounded-xl border-2 cursor-pointer select-none transition-all duration-150 active:scale-90';
+
+    // Size & style based on value
+    const size = idx < 3 ? 'w-16 h-16 sm:w-20 sm:h-20' : idx < 5 ? 'w-20 h-20 sm:w-24 sm:h-24' : 'w-24 h-24 sm:w-28 sm:h-28';
+    const colors = idx < 3
+      ? 'bg-amber-muted border-amber/30 hover:border-amber'
+      : idx < 5
+        ? 'bg-amber/20 border-amber/50 hover:border-amber'
+        : 'bg-amber/30 border-amber hover:border-amber-light animate-pulse-glow';
+
+    deal.className += ` ${size} ${colors}`;
+
+    // Position randomly
+    const maxX = field.clientWidth - 120;
+    const maxY = field.clientHeight - 120;
+    deal.style.left = (20 + Math.random() * Math.max(maxX, 60)) + 'px';
+    deal.style.top = (20 + Math.random() * Math.max(maxY, 60)) + 'px';
+
+    // Content
+    deal.innerHTML = `
+      <span class="text-amber font-heading font-bold text-sm sm:text-base">${formatRevenue(value)}</span>
+      <span class="text-amber/60 text-[10px] uppercase tracking-wider">${label}</span>
+    `;
+
+    // Entry animation
+    deal.style.opacity = '0';
+    deal.style.transform = 'scale(0.3)';
+    requestAnimationFrame(() => {
+      deal.style.transition = 'opacity 0.2s, transform 0.2s';
+      deal.style.opacity = '1';
+      deal.style.transform = 'scale(1)';
+    });
+
+    // Click handler
+    deal.addEventListener('click', () => {
+      if (!gameActive) return;
+      score++;
+      revenue += value;
+      scoreEl.textContent = String(score);
+      revenueEl.textContent = formatRevenue(revenue);
+
+      // Pop animation
+      deal.style.transition = 'all 0.2s ease-out';
+      deal.style.transform = 'scale(1.3)';
+      deal.style.opacity = '0';
+      deal.style.borderColor = '#dbb964';
+
+      // Show +value floating text
+      const popup = document.createElement('div');
+      popup.className = 'absolute text-amber font-heading font-bold text-sm pointer-events-none';
+      popup.textContent = '+' + formatRevenue(value);
+      popup.style.left = deal.style.left;
+      popup.style.top = deal.style.top;
+      popup.style.transition = 'all 0.6s ease-out';
+      popup.style.opacity = '1';
+      field.appendChild(popup);
+      requestAnimationFrame(() => {
+        popup.style.transform = 'translateY(-30px)';
+        popup.style.opacity = '0';
+      });
+      setTimeout(() => popup.remove(), 600);
+
+      setTimeout(() => deal.remove(), 200);
+    });
+
+    field.appendChild(deal);
+
+    // Auto-remove if not clicked
+    setTimeout(() => {
+      if (deal.parentNode) {
+        deal.style.transition = 'opacity 0.3s, transform 0.3s';
+        deal.style.opacity = '0';
+        deal.style.transform = 'scale(0.5)';
+        setTimeout(() => deal.remove(), 300);
+      }
+    }, lifespan);
+  }
+
+  function startGame() {
+    score = 0;
+    revenue = 0;
+    timeLeft = GAME_DURATION;
+    gameActive = true;
+    scoreEl.textContent = '0';
+    revenueEl.textContent = '$0';
+    startScreen.classList.add('hidden');
+    endScreen.classList.add('hidden');
+
+    // Remove any leftover deals
+    field.querySelectorAll('button').forEach(b => b.remove());
+
+    // Timer
+    gameTimer = setInterval(() => {
+      timeLeft -= 0.1;
+      const secs = Math.max(0, Math.ceil(timeLeft));
+      timerEl.innerHTML = `<span class="text-warm-white">${secs}</span><span class="text-warm-gray text-lg">s</span>`;
+      timerBar.style.width = Math.max(0, (timeLeft / GAME_DURATION) * 100) + '%';
+
+      if (timeLeft < 5) {
+        timerBar.classList.remove('bg-amber');
+        timerBar.classList.add('bg-red-400');
+      }
+
+      if (timeLeft <= 0) {
+        endGame();
+      }
+    }, 100);
+
+    // Spawn deals
+    spawnDeal();
+    spawnTimer = setInterval(() => {
+      const concurrent = Math.min(3, 1 + Math.floor((GAME_DURATION - timeLeft) / 4));
+      for (let i = 0; i < concurrent; i++) {
+        setTimeout(() => spawnDeal(), Math.random() * 400);
+      }
+    }, 800);
+  }
+
+  function endGame() {
+    gameActive = false;
+    if (gameTimer) clearInterval(gameTimer);
+    if (spawnTimer) clearInterval(spawnTimer);
+
+    // Remove remaining deals
+    field.querySelectorAll('button').forEach(b => {
+      b.style.transition = 'opacity 0.3s';
+      b.style.opacity = '0';
+      setTimeout(() => b.remove(), 300);
+    });
+
+    timerBar.classList.remove('bg-red-400');
+    timerBar.classList.add('bg-amber');
+
+    // Set end screen content
+    const endEmoji = document.getElementById('end-emoji')!;
+    const endTitle = document.getElementById('end-title')!;
+    const endMessage = document.getElementById('end-message')!;
+    const endDeals = document.getElementById('end-deals')!;
+    const endRevenue = document.getElementById('end-revenue')!;
+
+    endDeals.textContent = String(score);
+    endRevenue.textContent = formatRevenue(revenue);
+
+    if (score >= 20) {
+      endEmoji.textContent = '🏆';
+      endTitle.textContent = 'Sales Machine!';
+      endMessage.textContent = "You'd fit right in at OneWave AI. Seriously, let's talk.";
+    } else if (score >= 12) {
+      endEmoji.textContent = '🔥';
+      endTitle.textContent = 'Quota Crusher!';
+      endMessage.textContent = 'Solid performance. You clearly know how to close.';
+    } else if (score >= 6) {
+      endEmoji.textContent = '💼';
+      endTitle.textContent = 'Not Bad!';
+      endMessage.textContent = 'A decent quarter — but I know you can do better.';
+    } else {
+      endEmoji.textContent = '📋';
+      endTitle.textContent = 'Warming Up';
+      endMessage.textContent = "Every closer starts somewhere. Give it another shot!";
+    }
+
+    setTimeout(() => {
+      endScreen.classList.remove('hidden');
+    }, 400);
+  }
+
+  startBtn.addEventListener('click', startGame);
+  retryBtn.addEventListener('click', startGame);
+</script>

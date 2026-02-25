@@ -14,16 +14,13 @@
   --font-body: "Inter", system-ui, sans-serif;
 }
 
-/* Scroll-triggered fade-up animation */
+/* ========================
+   KEYFRAME ANIMATIONS
+   ======================== */
+
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(32px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(32px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes fade-in {
@@ -32,14 +29,13 @@
 }
 
 @keyframes slide-in-left {
-  from {
-    opacity: 0;
-    transform: translateX(-24px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-40px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(40px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes subtle-float {
@@ -47,20 +43,65 @@
   50% { transform: translateY(-6px); }
 }
 
-.animate-fade-up {
-  animation: fade-up 0.7s ease-out both;
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out both;
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(200, 160, 74, 0.1); }
+  50% { box-shadow: 0 0 40px rgba(200, 160, 74, 0.25); }
 }
 
-.animate-slide-left {
-  animation: slide-in-left 0.6s ease-out both;
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.animate-float {
-  animation: subtle-float 4s ease-in-out infinite;
+@keyframes line-grow {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.5); opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes count-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating particles for hero */
+@keyframes float-particle {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-100vh) translateX(20px); opacity: 0; }
+}
+
+/* ========================
+   ANIMATION CLASSES
+   ======================== */
+
+.animate-fade-up { animation: fade-up 0.7s ease-out both; }
+.animate-fade-in { animation: fade-in 0.6s ease-out both; }
+.animate-slide-left { animation: slide-in-left 0.7s ease-out both; }
+.animate-slide-right { animation: slide-in-right 0.7s ease-out both; }
+.animate-float { animation: subtle-float 4s ease-in-out infinite; }
+.animate-scale-in { animation: scale-in 0.5s ease-out both; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(200,160,74,0.08), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
 }
 
 /* Stagger delays */
@@ -70,12 +111,17 @@
 .delay-400 { animation-delay: 0.4s; }
 .delay-500 { animation-delay: 0.5s; }
 .delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
+.delay-800 { animation-delay: 0.8s; }
 
-/* Intersection observer driven reveals */
+/* ========================
+   SCROLL REVEAL SYSTEM
+   ======================== */
+
 .reveal {
   opacity: 0;
   transform: translateY(32px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .reveal.visible {
@@ -83,27 +129,127 @@
   transform: translateY(0);
 }
 
-/* Selection color */
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-scale {
+  opacity: 0;
+  transform: scale(0.92);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-scale.visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Staggered children inside a .reveal-stagger parent */
+.reveal-stagger.visible > * {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.reveal-stagger.visible > *:nth-child(1) { animation-delay: 0s; }
+.reveal-stagger.visible > *:nth-child(2) { animation-delay: 0.08s; }
+.reveal-stagger.visible > *:nth-child(3) { animation-delay: 0.16s; }
+.reveal-stagger.visible > *:nth-child(4) { animation-delay: 0.24s; }
+.reveal-stagger.visible > *:nth-child(5) { animation-delay: 0.32s; }
+.reveal-stagger.visible > *:nth-child(6) { animation-delay: 0.4s; }
+
+/* ========================
+   PARALLAX-LIKE EFFECTS
+   ======================== */
+
+.hero-bg-orb {
+  transition: transform 0.3s ease-out;
+}
+
+/* Animated gradient dividers between sections */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,160,74,0.3), transparent);
+  background-size: 200% 100%;
+  animation: gradient-shift 4s ease-in-out infinite;
+}
+
+/* Timeline line animation */
+.timeline-line {
+  transform-origin: top;
+  animation: line-grow 1.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Glowing active dot */
+.timeline-dot-active {
+  animation: dot-pulse 2.5s ease-in-out infinite;
+}
+
+/* ========================
+   HERO PARTICLES
+   ======================== */
+
+.particle {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: rgba(200, 160, 74, 0.4);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: float-particle linear infinite;
+}
+
+/* ========================
+   INTERACTIVE HOVER EFFECTS
+   ======================== */
+
+.card-hover {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(200, 160, 74, 0.08);
+}
+
+/* Magnetic button effect */
+.magnetic-btn {
+  transition: transform 0.2s ease-out;
+}
+
+/* ========================
+   SELECTION & SCROLLBAR
+   ======================== */
+
 ::selection {
   background-color: rgba(200, 160, 74, 0.3);
   color: #f0ece2;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0f1117; }
+::-webkit-scrollbar-thumb { background: #c8a04a; border-radius: 3px; }
 
-::-webkit-scrollbar-track {
-  background: #0f1117;
-}
+/* ========================
+   BASE STYLES
+   ======================== */
 
-::-webkit-scrollbar-thumb {
-  background: #c8a04a;
-  border-radius: 3px;
-}
-
-/* Smooth scroll */
 html {
   scroll-behavior: smooth;
 }
